@@ -1,8 +1,12 @@
 import React from 'react'
 
+import Chat from '../components/chat/Chat'
+
 const home = () => {
   return (
-    <div>home</div>
+    <div className='home'>
+      <Chat />
+    </div>
   )
 }
 
