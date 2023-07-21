@@ -1,9 +1,9 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useState, useCallback, useRef, useEffect } from 'react'
 
 const Chat = () => {
     const socket = useRef(new WebSocket(`ws://localhost:3000`))
 
-    const [message, setMessage] = useState([])
+    const [message, setMessage] = useState<string[]>([])
 
     useEffect(() => {
         console.log(socket.current)
@@ -12,7 +12,7 @@ const Chat = () => {
             socket.current.close()
         }
     }, [])
-
+    
     socket.current.addEventListener('open', () => {
         console.log('Connected to Browser')   
     })
@@ -26,13 +26,14 @@ const Chat = () => {
         console.log('Disconnected from Server')   
     })
 
-    const submitHandler = useCallback(e => {
+    const submitHandler = useCallback<(e: React.FormEvent<HTMLFormElement>) => void>(e => {
         e.preventDefault()
         const { text } = e.currentTarget
     
         socket.current.send(text.value)
         text.value = ''
     }, [])
+    
 
   return (
     <div className='chat-wrapper'>
@@ -63,4 +64,4 @@ const Chat = () => {
   )
 }
 
-export default Chat
+export default React.memo(Chat) 
