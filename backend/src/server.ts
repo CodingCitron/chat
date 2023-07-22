@@ -5,6 +5,9 @@ import dotenv from 'dotenv'
 import cors from 'cors'
 import path from 'path'
 
+// database
+import db from './models'
+
 dotenv.config({ path: path.join(__dirname, '..', '.env') })
 
 const app = express()
@@ -26,7 +29,12 @@ const wss = new WebSocket.Server({ server })
 
 const sockets: any[] = []
 
-server.listen(port, () => console.log(`Listen on ${origin}`))
+server.listen(port, async () => {
+    console.log(`Listen on ${origin}`)
+
+    await db.sequelize.authenticate()
+    console.log('db connected')
+})
 wss.on('connection', socket => {
     sockets.push(socket)
     socket.send('welcome to chat!')

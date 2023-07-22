@@ -1,5 +1,38 @@
 version: '3'
 services:
   frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - /usr/src/app/node_modules
+      - ./frontend:/usr/src/app:consistent
+    environment:
+      - CHOKIDAR_USEPOLLING=true # 중요!! 리액트 핫 리로딩 적용. 윈도우 터미널에서 필요
+    stdin_open: true # 리액트 한정 리액트 종료할때 필요
+
   backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - /app/node_modules
+      - ./backend:/app
+    depends_on:
+      - db
+
   db:
+    image: postgres:latest
+    container_name: chat_app_db
+    restart: always
+    ports:
+      - "7000:5432"
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+    volumes:
+      - ./data:/var/lib/postgresql/data
