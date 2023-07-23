@@ -1,15 +1,15 @@
 import axios from 'axios'
 import React, { useState, useCallback } from 'react'
 import { Link } from 'react-router-dom'
+import { useAuthStore } from '../stores/auth'
 
 const Register = () => {
   const [errors, setErrors] = useState<any>({})
+  const { login } = useAuthStore(state => state)
 
   const submitHandler = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
-
     const { name, email, password, confirmPassword } = e.currentTarget as HTMLFormElement
-    console.log(name, email, password, confirmPassword)
 
     try {
       const res = await axios.post('http://localhost:3000/api/auth/register', {
@@ -19,11 +19,11 @@ const Register = () => {
         confirmPassword: confirmPassword.value
       })
 
-      console.log(res.data)
-    } catch (error) {
-
+      login(res.data)
+    } catch (error: any) {
+      console.error(error)
+      setErrors(error.response.data || {})
     }
-
   }, [errors])
   
   return (

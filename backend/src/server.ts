@@ -3,21 +3,18 @@ import WebSocket from 'ws'
 import express, { Application } from 'express'
 import dotenv from 'dotenv'
 import cors from 'cors'
-import path from 'path'
 import AuthRouter from './routes/auth'
+import cookieParser from "cookie-parser"
 
 // database
 // import db from './models'
 // import { PrismaClient } from '@prisma/client'
 
-dotenv.config({ path: path.join(__dirname, '..', '.env') })
+dotenv.config()
 
 const app: Application = express()
 const port: number = 3000
-// const prisma = new PrismaClient()
 
-// app.set('')
-app.use(express.static("public")) // public 폴더 사용
 const origin = `http://localhost:5173` 
 
 app.use(cors({
@@ -26,6 +23,8 @@ app.use(cors({
 }))
 app.use(express.json()) // json 형태로 오는 요청의 본문을 해석해줄 수 있게 등록
 app.use(express.urlencoded({ extended: true })) // form 방식일때
+app.use(cookieParser())
+app.use(express.static("public")) // public 폴더 사용
 
 // 라우터 연결
 app.use('/api/auth', AuthRouter)

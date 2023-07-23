@@ -1,15 +1,28 @@
 import React, { useCallback, useState } from 'react'
 import { Link } from 'react-router-dom'
+import axios from 'axios'
+import { useAuthStore } from '../stores/auth'
 
 const Login = () => {
     const [errors, setErrors] = useState<any>({})
+    const { login } = useAuthStore(state => state)
 
-    const submitHandler = useCallback((e: React.FormEvent) => {
+    const submitHandler = useCallback(async (e: React.FormEvent) => {
       e.preventDefault()
       const { email, password } = e.currentTarget as HTMLFormElement
 
-      console.log(email, password)
-    }, []) 
+      try {
+        const res = await axios.post('/auth/login', {
+          email: email.value,
+          password: password.value
+        })
+
+        login(res.data)
+      } catch (error: any) {
+        console.log(error)
+        setErrors(error.response.data || {})
+      }
+    }, [errors]) 
 
   return (
     <div>
