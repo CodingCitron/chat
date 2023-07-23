@@ -6,7 +6,6 @@ const env: string = process.env.NODE_ENV || 'development'
 const config = Config[env]
 const db: any = {}
 
-console.log(config)
 const sequelize = new Sequelize(
     config.database, 
     config.username, 
@@ -34,3 +33,6 @@ db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
 export default db
+export {
+    sequelize,
+}

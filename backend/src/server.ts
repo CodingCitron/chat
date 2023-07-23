@@ -1,21 +1,24 @@
 import http from 'http'
 import WebSocket from 'ws'
-import express from 'express'
+import express, { Application } from 'express'
 import dotenv from 'dotenv'
 import cors from 'cors'
 import path from 'path'
+import AuthRouter from './routes/auth'
 
 // database
-import db from './models'
+// import db from './models'
+// import { PrismaClient } from '@prisma/client'
 
 dotenv.config({ path: path.join(__dirname, '..', '.env') })
 
-const app = express()
+const app: Application = express()
 const port: number = 3000
+// const prisma = new PrismaClient()
 
 // app.set('')
 app.use(express.static("public")) // public 폴더 사용
-const origin = `http://localhost:${port}` 
+const origin = `http://localhost:5173` 
 
 app.use(cors({
     origin,
@@ -24,16 +27,17 @@ app.use(cors({
 app.use(express.json()) // json 형태로 오는 요청의 본문을 해석해줄 수 있게 등록
 app.use(express.urlencoded({ extended: true })) // form 방식일때
 
+// 라우터 연결
+app.use('/api/auth', AuthRouter)
+
 const server = http.createServer(app)
 const wss = new WebSocket.Server({ server })
 
 const sockets: any[] = []
 
 server.listen(port, async () => {
-    console.log(`Listen on ${origin}`)
-
-    await db.sequelize.authenticate()
-    console.log('db connected')
+    console.log(`Listen on ${port}`)
+    // await db.sequelize.authenticate()
 })
 wss.on('connection', socket => {
     sockets.push(socket)

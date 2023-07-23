@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from 'react'
+import { Link } from 'react-router-dom'
 
 const Login = () => {
     const [errors, setErrors] = useState<any>({})
@@ -24,7 +25,7 @@ const Login = () => {
               placeholder='비밀번호'
             />
             <button>로그인</button>
-            <button>회원가입</button>
+            <Link to="/register">회원가입</Link>
         </form>
     </div>
   )
