@@ -3,6 +3,7 @@ import { create } from 'zustand'
 interface State {
     email: string | null
     name: string | null
+    token: string | null
     isLogin: Boolean | null
 } 
 
@@ -14,6 +15,7 @@ interface Actions {
 const DEFAULT_PROPS: State = {
     email: null,
     name: null,
+    token: null,
     isLogin: false
 }
 
@@ -24,7 +26,7 @@ export const useAuthStore = create<State & Actions>()((set) => ({
         ...user,
         isLogin: true
     })),
-    logout: (user: State) => set((state) => ({
+    logout: () => set((state) => ({
         ...state,
         ...DEFAULT_PROPS
     }))

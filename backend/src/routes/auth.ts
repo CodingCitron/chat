@@ -96,7 +96,11 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
             maxAge: 60 * 60 * 24 * 7,
             path: "/"
         }))
-        return res.json({ user, token })
+        return res.json({ 
+            email: user.email, 
+            name: user.name,
+            token
+        })
     } catch (error) {
         console.log(error)
         next(error)
@@ -118,8 +122,11 @@ const logout = async (_: Request, res: Response) => {
     res.status(200).json({ success: true })
 }
 
-const loadUser = async (_: Request, res: Response) => {
-    return res.json(res.locals.user)
+const loadUser = async (req: Request, res: Response) => {
+    return res.json({
+        ...res.locals.user,
+        token: req.cookies.token
+    })
 }
 
 const router = Router()

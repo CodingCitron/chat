@@ -5,6 +5,7 @@ import dotenv from 'dotenv'
 import cors from 'cors'
 import AuthRouter from './routes/auth'
 import cookieParser from "cookie-parser"
+import jwt from 'jsonwebtoken'
 
 // database
 // import db from './models'
@@ -15,7 +16,7 @@ dotenv.config()
 const app: Application = express()
 const port: number = 3000
 
-const origin = `http://localhost:5173` 
+const origin = `http://localhost:8000` 
 
 app.use(cors({
     origin,
@@ -38,17 +39,27 @@ server.listen(port, async () => {
     console.log(`Listen on ${port}`)
     // await db.sequelize.authenticate()
 })
-wss.on('connection', socket => {
+
+/* wss.on('connection', socket => {
     sockets.push(socket)
-    socket.send('welcome to chat!')
-    socket.send('hello!!!')
+
     socket.on('message', message => {
-        sockets.forEach(otherSocket => otherSocket.send(message.toString()))
+        const parsed = JSON.parse(message.toString())
+
+        try {
+            const { email, name }: any = jwt.verify(parsed.token, process.env.JWT_SECRET || '')
+            
+            const message = JSON.stringify({ email, name, message: parsed.message })
+            sockets.forEach(otherSocket => otherSocket.send(message))
+        } catch (error) {
+            console.log(error)
+        }
     })
+
     socket.on('close', () => {
         console.log('Disconnected from the Browser')
     })
-})
+}) */
 
 // 바벨과 타입스크립트 충돌
 // https://hoontae24.github.io/9

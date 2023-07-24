@@ -16,7 +16,7 @@ const Login = () => {
           email: email.value,
           password: password.value
         })
-
+        
         login(res.data)
       } catch (error: any) {
         console.log(error)

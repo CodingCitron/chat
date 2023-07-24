@@ -5,7 +5,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile.dev
     ports:
-      - "5173:5173"
+      - "8000:5173"
     volumes:
       - /usr/src/app/node_modules
       - ./frontend:/usr/src/app:consistent
