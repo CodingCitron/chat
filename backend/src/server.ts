@@ -1,15 +1,11 @@
 import http from 'http'
-import WebSocket from 'ws'
 import express, { Application } from 'express'
 import dotenv from 'dotenv'
 import cors from 'cors'
 import AuthRouter from './routes/auth'
 import cookieParser from "cookie-parser"
 import jwt from 'jsonwebtoken'
-
-// database
-// import db from './models'
-// import { PrismaClient } from '@prisma/client'
+import { Server } from 'socket.io'
 
 dotenv.config()
 
@@ -31,35 +27,25 @@ app.use(express.static("public")) // public 폴더 사용
 app.use('/api/auth', AuthRouter)
 
 const server = http.createServer(app)
-const wss = new WebSocket.Server({ server })
-
-const sockets: any[] = []
-
-server.listen(port, async () => {
-    console.log(`Listen on ${port}`)
-    // await db.sequelize.authenticate()
+const io = new Server(server, {
+    cors: {
+        origin
+    }
 })
 
-/* wss.on('connection', socket => {
-    sockets.push(socket)
-
-    socket.on('message', message => {
-        const parsed = JSON.parse(message.toString())
-
-        try {
-            const { email, name }: any = jwt.verify(parsed.token, process.env.JWT_SECRET || '')
-            
-            const message = JSON.stringify({ email, name, message: parsed.message })
-            sockets.forEach(otherSocket => otherSocket.send(message))
-        } catch (error) {
-            console.log(error)
-        }
+server.listen(port, async () => console.log(`Listen on ${port}`))
+io.on('connection', socket => {
+    socket.onAny((event) => {
+        console.log(`Socket Event: ${event}`)
     })
-
-    socket.on('close', () => {
-        console.log('Disconnected from the Browser')
+    
+    socket.on('enter_room', (roomName, done) => {
+        console.log(roomName)
+        socket.join(roomName)
+        done(socket.rooms)
     })
-}) */
+})
+// const { email, name }: any = jwt.verify(parsed.token, process.env.JWT_SECRET || '')
 
 // 바벨과 타입스크립트 충돌
 // https://hoontae24.github.io/9
