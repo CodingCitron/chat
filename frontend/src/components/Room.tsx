@@ -1,12 +1,19 @@
 import React, { FormEvent, useCallback, useRef, useState, useMemo, useEffect } from 'react'
 import { io } from 'socket.io-client'
 import { Messgae } from '../types'
+import { useAuthStore } from '../stores/auth'
 
 const Room = () => {
-    const socket = useRef(io('http://localhost:3000'))
+    const { token } = useAuthStore(state => state)
+
+    const socket = useRef(io('http://localhost:3000', {
+        auth: {
+            token
+        }
+    }))
     const [isJoin, setIsJoin] = useState(false)
     const [roomName, setRoomName] = useState('')  
-    const [message, setMessage] = useState<Messgae[]>([])
+    const [message, setMessage] = useState<String[]>([])
 
     const showRoom = useCallback((roomName: any) => {
         setIsJoin(true)
@@ -17,7 +24,7 @@ const Room = () => {
         e.preventDefault()
 
         const { room } = e.currentTarget as HTMLFormElement
-        const roomName: string = room.value
+        const roomName: String = room.value
 
         socket.current.emit(
             'enter_room', 
@@ -28,7 +35,7 @@ const Room = () => {
         room.value = ''
     }, [])
 
-    const addMessage = useCallback((newMessage: Messgae) => {
+    const addMessage = useCallback((newMessage: String) => {
         setMessage([...message, newMessage])
     }, [message])
 
@@ -37,47 +44,29 @@ const Room = () => {
         const { new_message } = e.currentTarget as HTMLFormElement
         
         socket.current.emit('new_message', new_message.value, roomName, () => {
-            addMessage({
-                type: 'welecome',
-                message: 'Someone Joined'
-            })
+            addMessage(new_message.value)
         })
-    }, [])
+    }, [message])
 
     useEffect(() => {
-        socket.current.on('welcome', () => {
-            const newMessage = {
-                type: 'welecome',
-                message: 'Someone Joined'
-            }
-    
-            addMessage(newMessage)
+        socket.current.on('welcome', () => {    
+            addMessage('Someone Joined')
         })
 
-        socket.current.on('bye', () => {
-            const newMessage = {
-                type: 'bye',
-                message: 'Someone Left '
-            }
-    
-            addMessage(newMessage)
+        socket.current.on('bye', () => {    
+            addMessage('Someone Left ')
         })
 
-        socket.current.on('new_message', message => {
-            const newMessage = {
-                type: 'new_message',
-                message
-            }
-    
-            addMessage(newMessage)
-        })
+        socket.current.on('new_message', message => {    
+            addMessage(message)
+        })    
     }, [])
 
     const messageRender = useMemo(() => {
         console.log(message)
         return message.map((msg, index) => (
             <li key={index}>
-                { msg.message }
+                { msg }
             </li>
         ))
     }, [message])

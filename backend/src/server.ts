@@ -1,5 +1,5 @@
 import http from 'http'
-import express, { Application } from 'express'
+import express, { Application, NextFunction, Request, Response } from 'express'
 import dotenv from 'dotenv'
 import cors from 'cors'
 import AuthRouter from './routes/auth'
@@ -55,6 +55,12 @@ io.on('connection', socket => {
         done()
     })
 })
+
+// io.engine.use((req: Request, res: Response, next: NextFunction) => {
+//     // do something
+//     console.log(req)
+//     next();
+// });
 // const { email, name }: any = jwt.verify(parsed.token, process.env.JWT_SECRET || '')
 
 // 바벨과 타입스크립트 충돌
