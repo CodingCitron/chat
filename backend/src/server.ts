@@ -5,7 +5,7 @@ import cors from 'cors'
 import AuthRouter from './routes/auth'
 import cookieParser from "cookie-parser"
 import jwt from 'jsonwebtoken'
-import { Server } from 'socket.io'
+import { Server, Socket } from 'socket.io'
 
 dotenv.config()
 
@@ -34,7 +34,27 @@ const io = new Server(server, {
 })
 
 server.listen(port, async () => console.log(`Listen on ${port}`))
-io.on('connection', socket => {
+
+// https://inpa.tistory.com/entry/EXPRESS-%F0%9F%93%9A-bodyParser-cookieParser-%EB%AF%B8%EB%93%A4%EC%9B%A8%EC%96%B4
+// io.engine.use(cookieParser())
+io
+.use((socket, next) => {
+    // const req = socket.request as any
+    // console.log(req.cookies)
+
+    if (socket.handshake.auth && socket.handshake.auth.token){
+        const token = socket.handshake.auth.token
+        
+        jwt.verify(token, process.env.JWT_SECRET || '', (err: any, decoded: any) => {
+            if (err) return next(new Error('Authentication error'))
+            socket.data.user = decoded
+            next()
+        })
+    } else {
+        next(new Error('Authentication error'))
+    }
+})
+.on('connection', socket => {
     socket.onAny((event) => {
         console.log(`Socket Event: ${event}`)
     })
@@ -42,7 +62,7 @@ io.on('connection', socket => {
     socket.on('enter_room', (roomName, done) => {
         socket.join(roomName)
         done(socket.rooms)
-
+        // console.log(socket.data.user)
         socket.to(roomName).emit('welcome')
     })
 
