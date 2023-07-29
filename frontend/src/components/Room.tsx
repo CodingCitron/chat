@@ -3,8 +3,17 @@ import { io } from 'socket.io-client'
 import { Messgae } from '../types'
 import { useAuthStore } from '../stores/auth'
 
+interface Message {
+    user: {
+        email: string | null,
+        name: string | null,
+        [key: string]: any
+    },
+    msg: string
+}
+
 const Room = () => {
-    const { token } = useAuthStore(state => state)
+    const { name, email, token } = useAuthStore(state => state)
 
     const socket = useRef(io('http://localhost:3000', {
         auth: {
@@ -13,11 +22,11 @@ const Room = () => {
     }))
     const [isJoin, setIsJoin] = useState(false)
     const [roomName, setRoomName] = useState('')  
-    const [message, setMessage] = useState<String[]>([])
+    const [message, setMessage] = useState<Message[]>([])
 
     const showRoom = useCallback((roomName: any) => {
         setIsJoin(true)
-        setRoomName(`방: ${roomName}` )
+        setRoomName(roomName)
     }, [])
 
     const handleRoomSubmit = useCallback((e: FormEvent) => {
@@ -35,7 +44,8 @@ const Room = () => {
         room.value = ''
     }, [])
 
-    const addMessage = useCallback((newMessage: String) => {
+    const addMessage = useCallback((newMessage: Message) => {
+        console.log(newMessage)
         setMessage([...message, newMessage])
     }, [message])
 
@@ -44,29 +54,38 @@ const Room = () => {
         const { new_message } = e.currentTarget as HTMLFormElement
         
         socket.current.emit('new_message', new_message.value, roomName, () => {
-            addMessage(new_message.value)
+            addMessage({
+                user: {
+                    name,
+                    email
+                },
+                msg: new_message.value
+            })
+
+            new_message.value = ''
         })
     }, [message])
 
     useEffect(() => {
         socket.current.on('welcome', () => {    
-            addMessage('Someone Joined')
+            // addMessage('Someone Joined')
         })
 
         socket.current.on('bye', () => {    
-            addMessage('Someone Left ')
+            // addMessage('Someone Left ')
         })
 
-        socket.current.on('new_message', message => {    
+        socket.current.on('new_message', message => {
             addMessage(message)
         })    
-    }, [])
+    }, [message, roomName])
 
     const messageRender = useMemo(() => {
         console.log(message)
-        return message.map((msg, index) => (
+        return message.map((data, index) => (
             <li key={index}>
-                { msg }
+                <span>{ data.user.name }: </span>
+                <span>{ data.msg }</span>
             </li>
         ))
     }, [message])
@@ -93,7 +112,7 @@ const Room = () => {
             )}
             { isJoin && (
                 <div>
-                    <h3>{ roomName }</h3>
+                    <h3>{ `방: ${roomName}` }</h3>
                     <ul>
                         { messageRender }
                     </ul>

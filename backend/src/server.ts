@@ -71,7 +71,12 @@ io
     })
 
     socket.on('new_message', (msg, roomName, done) => {
-        socket.to(roomName).emit('new_message', msg)
+        console.log(msg, roomName, done)
+        
+        socket.to(roomName).emit('new_message', {
+            user: socket.data.user,
+            msg
+        })
         done()
     })
 })
