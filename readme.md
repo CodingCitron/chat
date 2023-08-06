@@ -1,2 +1,2 @@
-### socket io 정리
+### socket io
 - [DOCS](https://socket.io/docs/v4/)
